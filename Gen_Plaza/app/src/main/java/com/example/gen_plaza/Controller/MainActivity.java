@@ -1,5 +1,6 @@
 package com.example.gen_plaza.Controller;
 
+import android.app.Dialog;
 import android.os.Bundle;
 
 import com.android.volley.Request;
@@ -25,6 +26,9 @@ import android.view.View;
 import com.example.gen_plaza.Adapter.ListAdapter;
 import com.squareup.picasso.Downloader;
 
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -72,20 +76,49 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Snackbar.make(view, "Add a User", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
-                add_user();
+
+               open_dialog();
+
 
             }
         });
     }
 
-    private void add_user() {
+    private void open_dialog() {
+
+        final Dialog dialog = new Dialog(this);
+        dialog.setContentView(R.layout.dialog);
+        dialog.setTitle("Add user");
+        int width = (int) (this.getResources().getDisplayMetrics().widthPixels * 0.90);
+        dialog.getWindow().setLayout(width, ViewGroup.LayoutParams.WRAP_CONTENT);
+        final EditText editTextname = (EditText) dialog.findViewById(R.id.add_name);
+        final EditText editTextjob = (EditText) dialog.findViewById(R.id.add_job);
+        Button submit = dialog.findViewById(R.id.dialog_submit);
+
+        submit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String name="",job="";
+                name = editTextname.getText().toString();
+                job = editTextjob.getText().toString();
+
+                add_user(name,job);
+                dialog.dismiss();
+            }
+        });
+
+            dialog.show();
+
+    }
+
+    private void add_user(final String name, final String job) {
         String url = "https://reqres.in/api/users";
         StringRequest postRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>()
                 {
                     @Override
                     public void onResponse(String response) {
-                        
+
                         Log.d("Response", response);
                         Toast.makeText(MainActivity.this, ""+response, Toast.LENGTH_SHORT).show();
                     }
@@ -102,8 +135,8 @@ public class MainActivity extends AppCompatActivity {
             protected Map<String, String> getParams()
             {
                 Map<String, String>  params = new HashMap<String, String>();
-                params.put("name","testing");
-                params.put("job","leader");
+                params.put("name",name);
+                params.put("job",job);
 
                 return params;
             }
