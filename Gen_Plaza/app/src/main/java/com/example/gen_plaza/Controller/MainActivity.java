@@ -7,6 +7,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.gen_plaza.Model.User;
 import com.example.gen_plaza.R;
@@ -25,12 +26,15 @@ import com.example.gen_plaza.Adapter.ListAdapter;
 import com.squareup.picasso.Downloader;
 
 import android.widget.ListView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -38,7 +42,6 @@ public class MainActivity extends AppCompatActivity {
     ListAdapter listAdapter;
     private RequestQueue requestQueue;
     ArrayList<User> users;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +52,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        toolbar.setTitle("User");
+
+
+
+
+
         users = new ArrayList<>();
         requestQueue = Volley.newRequestQueue(this);
             parseJSON();
@@ -65,10 +72,43 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Snackbar.make(view, "Add a User", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
-
+                add_user();
 
             }
         });
+    }
+
+    private void add_user() {
+        String url = "https://reqres.in/api/users";
+        StringRequest postRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>()
+                {
+                    @Override
+                    public void onResponse(String response) {
+                        
+                        Log.d("Response", response);
+                        Toast.makeText(MainActivity.this, ""+response, Toast.LENGTH_SHORT).show();
+                    }
+                },
+                new Response.ErrorListener()
+                {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                       error.printStackTrace();
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams()
+            {
+                Map<String, String>  params = new HashMap<String, String>();
+                params.put("name","testing");
+                params.put("job","leader");
+
+                return params;
+            }
+        };
+        requestQueue.add(postRequest);
     }
 
     public void parseJSON() {
@@ -82,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onResponse(JSONObject response) {
                         try {
                             JSONArray jsonArray = response.getJSONArray("data");
-                            Log.d("lenght", String.valueOf(jsonArray.length()));
+                            Log.d("length", String.valueOf(jsonArray.length()));
                             for (int i =0; i < jsonArray.length(); i++) {
                                 JSONObject data = jsonArray.getJSONObject(i);
 
